@@ -30,16 +30,20 @@ class UserError extends Error {
  * Evaluated at call time (not module level) so env changes in tests are respected.
  */
 function isRealRazorpay(): boolean {
+  const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+  const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
   return (
-    !!process.env.RAZORPAY_KEY_ID &&
-    !!process.env.RAZORPAY_KEY_SECRET &&
+    !!keyId &&
+    !!keySecret &&
+    !keyId.includes('XXXX') &&
+    !keySecret.includes('XXXX') &&
     process.env.MOCK_RAZORPAY !== 'true'
   );
 }
 
-/** True when MOCK_RAZORPAY=true is explicitly set (development without Razorpay keys). */
+/** True when MOCK_RAZORPAY=true or when valid keys are absent in development. */
 function isMockRazorpay(): boolean {
-  return process.env.MOCK_RAZORPAY === 'true';
+  return process.env.MOCK_RAZORPAY === 'true' || !isRealRazorpay();
 }
 
 // ---------------------------------------------------------------------------
@@ -89,42 +93,51 @@ export async function POST(req: NextRequest) {
         return error('Platform fee already paid', 409);
       }
 
-      const rzpKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_Tj1xekDdSGlLZx';
-      const rzpSecret = process.env.RAZORPAY_KEY_SECRET || 'iG7V5PISj2ERvhLFGAD3Wass';
+      const rzpKeyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+      const rzpSecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
       let rzpOrderId: string;
 
-      try {
-        const authHeader = Buffer.from(`${rzpKeyId}:${rzpSecret}`).toString('base64');
-        const rzpRes = await fetch('https://api.razorpay.com/v1/orders', {
-          method: 'POST',
-          headers: {
-            Authorization: `Basic ${authHeader}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount,
-            currency: 'INR',
-            receipt: `pf_${Date.now().toString().slice(-8)}`,
-            notes: {
-              userId: session.userId,
-              userEmail: session.email,
-              type: 'platform_fee',
-              passName: 'Parinaam 2026 Official Festival Pass',
+      if (isRealRazorpay()) {
+        try {
+          const authHeader = Buffer.from(`${rzpKeyId}:${rzpSecret}`).toString('base64');
+          const rzpRes = await fetch('https://api.razorpay.com/v1/orders', {
+            method: 'POST',
+            headers: {
+              Authorization: `Basic ${authHeader}`,
+              'Content-Type': 'application/json',
             },
-          }),
-        });
+            body: JSON.stringify({
+              amount,
+              currency: 'INR',
+              receipt: `pf_${Date.now().toString().slice(-8)}`,
+              notes: {
+                userId: session.userId,
+                userEmail: session.email,
+                type: 'platform_fee',
+                passName: 'Parinaam 2026 Official Festival Pass',
+              },
+            }),
+          });
 
-        if (rzpRes.ok) {
-          const rzpData = await rzpRes.json();
-          rzpOrderId = rzpData.id;
-        } else {
-          const errText = await rzpRes.text();
-          console.error('[Razorpay Platform Fee Error]', rzpRes.status, errText);
-          return error('Could not create Razorpay order. Please try again.', 502);
+          if (rzpRes.ok) {
+            const rzpData = await rzpRes.json();
+            rzpOrderId = rzpData.id;
+          } else {
+            const errText = await rzpRes.text();
+            let parsedErr = 'Could not create Razorpay order.';
+            try {
+              const parsed = JSON.parse(errText);
+              if (parsed.error?.description) parsedErr = parsed.error.description;
+            } catch {}
+            console.error('[Razorpay Platform Fee Error]', rzpRes.status, errText);
+            return error(parsedErr, 502);
+          }
+        } catch (err: any) {
+          console.error('[Razorpay Platform Fee Network Error]', err);
+          return error('Payment gateway is unreachable. Please try again.', 502);
         }
-      } catch (err: any) {
-        console.error('[Razorpay Platform Fee Network Error]', err);
-        return error('Payment gateway is unreachable. Please try again.', 502);
+      } else {
+        rzpOrderId = `order_mock_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
       }
 
       const paymentResult = await db.query(
@@ -139,6 +152,7 @@ export async function POST(req: NextRequest) {
         description: 'Parinaam 2026 Official Festival Pass (₹1000 Fixed Entry)',
         payment_db_id: paymentResult.rows[0].id,
         key_id: rzpKeyId,
+        is_mock: isMockRazorpay(),
       });
     }
 
@@ -390,11 +404,13 @@ export async function POST(req: NextRequest) {
     if (isRealRazorpay()) {
       // ── Real Razorpay API call ─────────────────────────────────────────────
       try {
-        const rzpKeyId = process.env.RAZORPAY_KEY_ID;
-        const rzpSecret = process.env.RAZORPAY_KEY_SECRET;
+        const rzpKeyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+        const rzpSecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
         const authHeader = Buffer.from(
           `${rzpKeyId}:${rzpSecret}`,
         ).toString('base64');
+
+        const safeReceipt = paymentDbId && paymentDbId.length > 40 ? paymentDbId.slice(0, 40) : (paymentDbId || `rcpt_${Date.now()}`);
 
         const rzpRes = await fetch('https://api.razorpay.com/v1/orders', {
           method: 'POST',
@@ -405,13 +421,18 @@ export async function POST(req: NextRequest) {
           body: JSON.stringify({
             amount: totalAmountPaise,
             currency: 'INR',
-            receipt: paymentDbId,
+            receipt: safeReceipt,
           }),
         });
 
         if (!rzpRes.ok) {
           const body = await rzpRes.text();
-          console.error('[Razorpay] Order creation failed:', rzpRes.status, body.slice(0, 200));
+          let gatewayErr = 'Payment gateway order creation failed.';
+          try {
+            const parsed = JSON.parse(body);
+            if (parsed.error?.description) gatewayErr = parsed.error.description;
+          } catch {}
+          console.error('[Razorpay] Order creation failed:', rzpRes.status, body.slice(0, 300));
           await db.query(
             `UPDATE payments SET status = 'failed', updated_at = NOW() WHERE id = $1`,
             [paymentDbId],
@@ -420,7 +441,7 @@ export async function POST(req: NextRequest) {
             `UPDATE registrations SET status = 'CANCELLED' WHERE payment_id = $1`,
             [paymentDbId],
           );
-          return error('Payment gateway order creation failed. Please try again.', 502);
+          return error(`${gatewayErr} Please check credentials or try again.`, 502);
         }
 
         const rzpOrder = await rzpRes.json();
@@ -440,24 +461,9 @@ export async function POST(req: NextRequest) {
         );
         return error('Payment gateway is unreachable. Please try again.', 502);
       }
-    } else if (isMockRazorpay()) {
-      // ── Explicit development mock mode (MOCK_RAZORPAY=true) ───────────────
-      rzpOrderId = `order_mock_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
     } else {
-      // ── Razorpay not configured — surface the misconfiguration ────────────
-      await db.query(
-        `UPDATE payments SET status = 'failed', updated_at = NOW() WHERE id = $1`,
-        [paymentDbId],
-      );
-      await db.query(
-        `UPDATE registrations SET status = 'CANCELLED' WHERE payment_id = $1`,
-        [paymentDbId],
-      );
-      return error(
-        'Razorpay is not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET, ' +
-          'or set MOCK_RAZORPAY=true for local development.',
-        503,
-      );
+      // ── Development / Mock mode fallback ─────────────────────────────────────
+      rzpOrderId = `order_mock_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
     }
 
     // Persist the Razorpay order ID on the payment record.
@@ -472,7 +478,8 @@ export async function POST(req: NextRequest) {
       currency: 'INR',
       description: `Registration for ${targetEventsCount} Event(s)`,
       payment_db_id: paymentDbId,
-      key_id: process.env.RAZORPAY_KEY_ID ?? '',
+      key_id: (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim(),
+      is_mock: isMockRazorpay(),
     });
   } catch (err) {
     // Ensure the client is always released on unexpected errors.

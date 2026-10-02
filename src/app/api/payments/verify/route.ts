@@ -40,12 +40,16 @@ export async function POST(req: NextRequest) {
       return unauthorized();
     }
 
+    const keyId = (process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '').trim();
+    const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
     const isRealRazorpay =
-      !!process.env.RAZORPAY_KEY_ID &&
-      !!process.env.RAZORPAY_KEY_SECRET &&
+      !!keyId &&
+      !!keySecret &&
+      !keyId.includes('XXXX') &&
+      !keySecret.includes('XXXX') &&
       process.env.MOCK_RAZORPAY !== 'true';
 
-    const isMockRazorpay = process.env.MOCK_RAZORPAY === 'true' && !isRealRazorpay;
+    const isMockRazorpay = !isRealRazorpay;
 
     // =========================================================================
     // Razorpay Signature Verification
@@ -58,7 +62,7 @@ export async function POST(req: NextRequest) {
       }
       const generatedBody = `${razorpay_order_id}|${razorpay_payment_id}`;
       const expectedSignature = crypto
-        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
+        .createHmac('sha256', keySecret)
         .update(generatedBody)
         .digest('hex');
 

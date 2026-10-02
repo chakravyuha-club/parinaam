@@ -96,103 +96,6 @@ export async function POST(req: NextRequest) {
     const qrToken = uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, '').slice(0, 8);
     const emailVerifyToken = uuidv4();
 
-<<<<<<< HEAD
-    // Verification Status & Platform Fee Policy:
-    // - Amrita students: Instantly verified, free pass (platform_fee_paid: true, pass_type: 'AMRITA_FREE')
-    // - Outside students: 'pending' initially, instantly marked 'verified' upon successful ₹1000 payment
-    const isInitiallyPaid = isAmritaStudent;
-    const initialVerificationStatus = isAmritaStudent ? 'verified' : 'pending';
-    const passType = isAmritaStudent ? 'AMRITA_FREE' : 'DELEGATE_PASS_1000';
-
-    // Insert user into PostgreSQL
-    const result = await db.query(
-      `INSERT INTO users (
-        email, password_hash, full_name, phone,
-        college_name, is_amrita_student, roll_number, department,
-        year_of_study, city, verification_status, qr_token,
-        email_verify_token, email_verified, platform_fee_paid, id_card_url, pass_type
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-      RETURNING id, email, full_name, role, is_amrita_student, verification_status, qr_token, platform_fee_paid, id_card_url, pass_type`,
-      [
-        emailLower,
-        passwordHash,
-        full_name,
-        cleanPhone,
-        college_name || (isAmritaStudent ? 'Amrita Vishwa Vidyapeetham, Amaravati' : null),
-        isAmritaStudent,
-        roll_number || null,
-        department || null,
-        year_of_study || null,
-        city || null,
-        initialVerificationStatus,
-        qrToken,
-        emailVerifyToken,
-        true, // email_verified
-        isInitiallyPaid,
-        id_card_url || null,
-        passType,
-      ]
-    );
-
-    const user = result.rows[0];
-
-    // Sign JWT session
-    const token = await signToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role as 'student' | 'club_admin' | 'super_admin',
-    });
-
-    // For Outside College Students: Create Razorpay Order for ₹1000 Fixed Festival Pass
-    let razorpayOrder = null;
-    if (!isAmritaStudent) {
-      const amountPaise = STANDARD_PLATFORM_FEE_INR * 100; // 100000 paise (₹1000)
-      const rzpKeyId = process.env.RAZORPAY_KEY_ID || 'rzp_test_Tj1xekDdSGlLZx';
-      const rzpSecret = process.env.RAZORPAY_KEY_SECRET || 'iG7V5PISj2ERvhLFGAD3Wass';
-
-      let rzpOrderId: string;
-
-      try {
-        const authHeader = Buffer.from(`${rzpKeyId}:${rzpSecret}`).toString('base64');
-        const rzpRes = await fetch('https://api.razorpay.com/v1/orders', {
-          method: 'POST',
-          headers: {
-            Authorization: `Basic ${authHeader}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount: amountPaise,
-            currency: 'INR',
-            receipt: `pf_${Date.now().toString().slice(-8)}`,
-            notes: {
-              userId: user.id,
-              userEmail: user.email,
-              type: 'platform_fee',
-              passName: 'Parinaam 2026 Delegate Pass (Includes 4 Flagship Events)',
-            },
-          }),
-        });
-
-        if (rzpRes.ok) {
-          const rzpData = await rzpRes.json();
-          rzpOrderId = rzpData.id;
-        } else {
-          const errText = await rzpRes.text();
-          console.warn('[Razorpay] Order API returned error status:', rzpRes.status, errText);
-          rzpOrderId = `order_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-        }
-      } catch (rzpErr) {
-        console.error('[Razorpay] Network error, fallback order generated:', rzpErr);
-        rzpOrderId = `order_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
-      }
-
-      // Record payment row in database
-      const paymentInsert = await db.query(
-        `INSERT INTO payments (user_id, type, amount, razorpay_order_id, status)
-         VALUES ($1, 'platform_fee', $2, $3, 'created')
-         RETURNING id`,
-        [user.id, amountPaise, rzpOrderId]
-=======
     // =========================================================================
     // 1. AMRITA STUDENT FLOW: Instantly verified, free pass, created in DB
     // =========================================================================
@@ -219,7 +122,6 @@ export async function POST(req: NextRequest) {
           emailVerifyToken,
           id_card_url || null,
         ]
->>>>>>> d2ba6c0 (Gate outside user registration behind payment)
       );
 
       const user = result.rows[0];

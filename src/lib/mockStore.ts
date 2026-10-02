@@ -376,6 +376,23 @@ class MockDbEngine {
 
     // 7. SELECT events with club join
     if (qLower.includes('from events e') || (qLower.includes('from events') && !qLower.includes('update events'))) {
+      if (qLower.includes('where id = any') || qLower.includes('where e.id = any')) {
+        const rawIds = params[0];
+        const targetIds: string[] = Array.isArray(rawIds) ? rawIds : [rawIds];
+        const matched = this.events.filter(e => targetIds.includes(e.id));
+        const rows = matched.map(e => {
+          const club = this.clubs.find(c => c.id === e.club_id);
+          return {
+            ...e,
+            club_name: club?.name || 'Club',
+            club_slug: club?.slug || 'club',
+            club_color: club?.color || '#6366f1',
+            creator_name: 'Club Coordinator',
+          };
+        });
+        return { rows, rowCount: rows.length };
+      }
+
       if (qLower.includes('where e.id =') || qLower.includes('where id =')) {
         const eventId = params[0];
         const event = this.events.find(e => e.id === eventId);
@@ -682,6 +699,10 @@ class MockDbEngine {
         type = 'platform_fee';
         amount = Number(params[1]) || 100000;
         orderId = params[2]?.toString() || `order_${Date.now()}`;
+      } else if (qLower.includes("'event_fee'")) {
+        type = 'event_fee';
+        amount = Number(params[1]) || 0;
+        orderId = params[2]?.toString() || `order_${Date.now()}`;
       } else {
         type = params[1]?.toString() || 'event_fee';
         amount = Number(params[2] ?? params[4]) || 0;
@@ -707,8 +728,10 @@ class MockDbEngine {
     // 19. SELECT FROM REGISTRATIONS
     if (qLower.includes('from registrations')) {
       let result = [...this.registrations];
-      if (qLower.includes('user_id =') && qLower.includes('event_id =')) {
-        result = result.filter(r => r.user_id === params[0] && r.event_id === params[1]);
+      if (qLower.includes('user_id =') && (qLower.includes('event_id =') || qLower.includes('event_id = any'))) {
+        const rawIds = params[1];
+        const targetIds: string[] = Array.isArray(rawIds) ? rawIds : [rawIds];
+        result = result.filter(r => r.user_id === params[0] && targetIds.includes(r.event_id));
       } else if (qLower.includes('payment_id =')) {
         result = result.filter(r => r.payment_id === params[0] || r.payment_id === params[1]);
       } else if (qLower.includes('user_id =')) {
@@ -811,6 +834,9 @@ declare global {
   var __parinaam_mock_db: MockDbEngine | undefined;
 }
 
+if (global.__parinaam_mock_db) {
+  Object.setPrototypeOf(global.__parinaam_mock_db, MockDbEngine.prototype);
+}
 export const mockDb = global.__parinaam_mock_db || new MockDbEngine();
 if (process.env.NODE_ENV !== 'production') {
   global.__parinaam_mock_db = mockDb;

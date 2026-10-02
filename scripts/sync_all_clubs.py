@@ -1,7 +1,6 @@
 import os
 import sys
 import re
-from PIL import Image, ImageOps
 
 # Ensure UTF-8 output encoding on Windows console
 if sys.platform == "win32":
@@ -10,6 +9,14 @@ if sys.platform == "win32":
     except Exception:
         pass
 
+# Support PIL / Pillow safely for CI/CD environments
+try:
+    from PIL import Image, ImageOps
+    PIL_SUPPORTED = True
+except ImportError:
+    PIL_SUPPORTED = False
+    print("Warning: Pillow not installed. Install with 'pip install Pillow' to process club photos.")
+
 # Support HEIC format if pillow_heif is available
 try:
     import pillow_heif
@@ -17,7 +24,6 @@ try:
     HEIF_SUPPORTED = True
 except ImportError:
     HEIF_SUPPORTED = False
-    print("Warning: pillow_heif not installed. Install with 'pip install pillow-heif' to support .heic files.")
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEST_BASE = os.path.join(PROJECT_ROOT, "public", "images", "clubs")
@@ -41,6 +47,8 @@ CLUB_SLUG_MAP = {
 VALID_EXTENSIONS = {".heic", ".jpg", ".jpeg", ".png", ".webp"}
 
 def process_club_folder(folder_path, slug):
+    if not PIL_SUPPORTED:
+        return []
     dest_dir = os.path.join(DEST_BASE, slug)
     os.makedirs(dest_dir, exist_ok=True)
     

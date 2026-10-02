@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Terminal, Cpu, Music, Gamepad2 } from 'lucide-react';
 
 /* ─── Event-specific micro SVG marks ─────────────────────────── */
 const TerminalMark = () => (
@@ -187,7 +188,6 @@ const EventBlock = ({ pillar, index }: { pillar: Pillar; index: number }) => {
 
 /* ─── Main export ─────────────────────────────────────────────── */
 export const FestIdentity = () => {
-<<<<<<< HEAD
   const pillars: Pillar[] = [
     {
       icon: Terminal,
@@ -223,18 +223,9 @@ export const FestIdentity = () => {
     <section className="py-20 bg-[#060812] border-b border-slate-800/80 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Editorial Manifesto Header — unchanged */}
-        <div className="max-w-3xl space-y-2 mb-16">
-          <h2 className="font-pixel font-extrabold text-white text-3xl sm:text-5xl leading-tight tracking-tight">
-=======
-  return (
-    <section className="py-20 bg-[#060812] border-b border-slate-800/80 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         {/* Editorial Manifesto Header */}
-        <div className="max-w-3xl space-y-4">
+        <div className="max-w-3xl space-y-4 mb-16">
           <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight font-display">
->>>>>>> a92e2af48bebbb5cd71babc9b83d75e04494e5e5
             Two days. One campus.<br />
             <span className="text-slate-400">Thousands of stories.</span>
           </h2>
@@ -243,7 +234,6 @@ export const FestIdentity = () => {
           </p>
         </div>
 
-<<<<<<< HEAD
         {/* ── REDESIGNED EVENT SECTION ── */}
         <div className="relative">
 
@@ -306,8 +296,6 @@ export const FestIdentity = () => {
           </div>
 
         </div>
-=======
->>>>>>> a92e2af48bebbb5cd71babc9b83d75e04494e5e5
       </div>
     </section>
   );

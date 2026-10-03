@@ -138,48 +138,48 @@ export const GALLERY_ITEMS: GalleryClubItem[] = [
     photos: [
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-1.jpg',
+        title: 'Hackathon Award Ceremony',
+        caption: 'Chakravyuha team members celebrating a prestigious award win at the national hackathon ceremony.'
+      },
+      {
+        url: '/images/clubs/chakravyuha/chakravyuha-photo-2.jpg',
         title: 'Auditorium Tech Keynote',
         caption: 'Chakravyuha leads inaugurating technical symposiums and competitive coding hackathons in the university auditorium.'
       },
       {
-        url: '/images/clubs/chakravyuha/chakravyuha-photo-2.jpg',
-        title: 'Smart India Hackathon Winners',
-        caption: 'Team Chakravyuha receiving the championship award cheque for breakthrough engineering solutions at SIH.'
-      },
-      {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-3.jpg',
-        title: 'Competitive Coding & Labs',
+        title: 'Live Coding Session',
         caption: 'Developers immersed in 24-hour algorithmic problem solving and cyber security capture-the-flag sprints.'
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-4.jpg',
-        title: 'Hackathon Prototyping & Collaboration',
-        caption: 'Teams collaborating on architectural design, code review, and full-stack software development.'
+        title: 'Prize Distribution & Recognition',
+        caption: 'Championship award cheques and trophies being presented to winning Chakravyuha engineering teams.'
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-5.jpg',
-        title: 'Grand Hackathon Stage Showcase',
-        caption: 'Chakravyuha members and participants gathered on the main auditorium stage for celebration.'
+        title: 'Hackathon Stage Showcase',
+        caption: 'Chakravyuha members and participants gathered on the main stage for the hackathon grand finale.'
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-6.jpg',
-        title: 'Championship Trophy & Prize Ceremony',
-        caption: 'Winning teams receiving certificates, medals, and national cash prize accolades.'
+        title: 'Team Collaboration Sprint',
+        caption: 'Teams collaborating intensely on full-stack development and cyber forensic challenge solutions.'
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-7.jpg',
-        title: 'Team Problem-Solving Sprint',
-        caption: 'Engineers debugging algorithmic edge cases and stress-testing backends under tight deadlines.'
+        title: 'Competitive Coding Arena',
+        caption: 'Student engineers debugging algorithmic edge cases and stress-testing backends under tight deadlines.'
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-8.jpg',
-        title: 'Hackathon Project Defense',
+        title: 'Project Defense & Pitching',
         caption: 'Participants pitching live software and hardware solutions to academic and industry juries.'
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-9.jpg',
-        title: 'Technical Presentation & Talks',
-        caption: 'Student engineers presenting research architectures and software systems to fellow participants.'
+        title: 'Hackathon Team Group Photo',
+        caption: 'Chakravyuha club core team and volunteers posing together after a successful national hackathon edition.'
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-10.jpg',
@@ -257,6 +257,38 @@ export const GALLERY_ITEMS: GalleryClubItem[] = [
     imageUrl: '/images/clubs/prachurya.png',
     logoUrl: '/images/clubs/prachurya-emblem.png',
     cardUrl: '/images/clubs/prachurya-card.png',
+    photos: [
+      {
+        url: '/images/clubs/prachurya/prachurya-photo-1.jpg',
+        title: 'Parliamentary Debate Summit',
+        caption: 'Fiercely contested Parliamentary-style debates with student teams arguing policy motions before a packed audience.'
+      },
+      {
+        url: '/images/clubs/prachurya/prachurya-photo-2.jpg',
+        title: 'Quiz Championship Round',
+        caption: 'Student teams competing in rapid-fire trivia and general knowledge quizzing events on stage.'
+      },
+      {
+        url: '/images/clubs/prachurya/prachurya-photo-3.jpg',
+        title: 'Creative Writing & Literary Arts',
+        caption: 'Authors, poets, and storytellers presenting creative writing and spoken word performances at Parinaam.'
+      },
+      {
+        url: '/images/clubs/prachurya/prachurya-photo-4.jpg',
+        title: 'Cultural Heritage Exhibition',
+        caption: 'Prachurya members displaying fine art exhibits, calligraphy scrolls, and cultural heritage displays.'
+      },
+      {
+        url: '/images/clubs/prachurya/prachurya-photo-5.jpg',
+        title: 'National Trivia & GK Showdown',
+        caption: 'Energetic trivia tournament with national-level general knowledge rounds igniting student intellect.'
+      },
+      {
+        url: '/images/clubs/prachurya/prachurya-photo-6.jpg',
+        title: 'Award Ceremony & Recognition',
+        caption: 'Prachurya winners receiving certificates, trophies, and accolades at the closing ceremony.'
+      },
+    ],
     caption: 'Fiercely contested Parliamentary debates and national trivia rounds igniting student minds across the seminar halls.',
     description: 'Dedicated to igniting curiosity and inspiring expression ("Ignite, Inspire"), Prachurya hosts the festival\'s parliamentary debates, national general quizzes, creative writing summits, and fine arts exhibitions.',
     eventsConducted: ['Parliamentary Debate Summit', 'Mega General Quiz', 'Canvas & Calligraphy Gala']
@@ -460,28 +492,48 @@ export const GALLERY_ITEMS: GalleryClubItem[] = [
     photos: [
       {
         url: '/images/clubs/relu/relu-photo-1.jpg',
-        title: 'Deep Learning Sprint',
-        caption: 'Developers fine-tuning neural network weights and deploying AI models in real time.'
+        title: 'Deep Learning Research Keynote',
+        caption: 'Leading AI researchers and student engineers presenting deep learning architectures and neural network breakthroughs.'
       },
       {
         url: '/images/clubs/relu/relu-photo-2.jpg',
-        title: 'Autonomous Agents Lab',
-        caption: 'Teams architecting multi-agent reasoning systems and tool-using LLM pipelines.'
+        title: 'Competitive ML Hackathon',
+        caption: 'Teams racing to build and fine-tune machine learning models in the competitive 24-hour sprint environment.'
       },
       {
         url: '/images/clubs/relu/relu-photo-3.jpg',
-        title: 'AI Architecture Workshop',
-        caption: 'Mentors breaking down transformer attention mechanisms and neural representations.'
+        title: 'AI Summit & Conference',
+        caption: 'Industry experts and student engineers at the annual AI symposium sharing research innovations and case studies.'
       },
       {
         url: '/images/clubs/relu/relu-photo-4.jpg',
-        title: 'Predictive Analytics Sprint',
-        caption: 'Data scientists presenting algorithmic evaluation metrics to industry judges.'
+        title: 'Live Demo & Model Deployment',
+        caption: 'Developers showcasing real-time AI model inference, data pipelines, and autonomous agent demonstrations.'
       },
       {
         url: '/images/clubs/relu/relu-photo-5.jpg',
-        title: 'Hackathon Award Presentation',
-        caption: 'Relu champions receiving certificates and awards for machine learning innovation.'
+        title: 'Prompt to Product Workshop',
+        caption: 'Students building end-to-end AI-powered products and LLM applications in the Prompt to Product session.'
+      },
+      {
+        url: '/images/clubs/relu/relu-photo-6.jpg',
+        title: 'Networking & Community Meetup',
+        caption: 'ReLU club members and AI enthusiasts connecting, collaborating, and sharing project insights.'
+      },
+      {
+        url: '/images/clubs/relu/relu-photo-7.jpg',
+        title: 'Campus AI Research Talks',
+        caption: 'Student researchers presenting published AI papers and novel machine learning experiment findings.'
+      },
+      {
+        url: '/images/clubs/relu/relu-photo-8.jpg',
+        title: 'Hackathon Closing Ceremony',
+        caption: 'ReLU champions celebrating their AI hackathon victories at the prize distribution ceremony.'
+      },
+      {
+        url: '/images/clubs/relu/relu-photo-9.jpg',
+        title: 'AgentForge Challenge Finals',
+        caption: 'Finalists demonstrating autonomous AI agent systems solving complex real-world business and research problems.'
       },
     ],
     caption: 'Developers engineering autonomous AI agent swarms and deep learning pipelines solving complex industry challenges.',
